@@ -7,8 +7,11 @@
     <script type="text/x-handlebars" data-template-name="index">
     	 {{input type="text" placeholder="Search for tags" value=query action="search"}} <button {{action "search" query}}>Search</button>
     </script>
-    <script type="text/x-handlebars" data-template-name="search_result">
-      
+    <script type="text/x-handlebars" data-template-name="search">
+        {{input type="text" placeholder="Search for tags" value=newQuery action="search"}} <button {{action "search" newQuery}}>Search</button>
+          {{#each}}
+            {{id}} {{title}} <br>
+          {{/each}}
     </script>
     <!-- <input type="text" placeholder="Search for tags" value=""><button>Search</button> -->
   </body>
