@@ -5,13 +5,91 @@
   </head>
   <body>
     <script type="text/x-handlebars" data-template-name="index">
-    	 {{input type="text" placeholder="Search for tags" value=query action="search"}} <button {{action "search" query}}>Search</button>
+
+    	 <div class="container">
+        <div class="row">
+           <div class="col-md-6 col-md-offset-3">
+              <h1>Search for Tags on Flickr</h1>
+          </div>
+         <div class="row">
+           <div class="col-md-4 col-md-offset-4">
+              <div class="form-inline" role="form">
+                <div class="form-group" >
+                {{input type="text" placeholder="Search for tags" value=query class="form-control" action="search"}} 
+                <button {{action "search"}} type="button" class="btn btn-primary">Search</button>
+                </div>
+              </div>
+           </div>
+        </div>
+          
+      </div>
     </script>
     <script type="text/x-handlebars" data-template-name="search">
-        {{input type="text" placeholder="Search for tags" value=newQuery action="search"}} <button {{action "search" newQuery}}>Search</button>
+    <div class="container">
+       <div class="row">
+          <div class="col-md-5">
+              <h1>Search for Tags on Flickr</h1>
+          </div>
+          <div class="col-md-4">
+            <div class="form-inline search-box" role="form">
+              <div class="form-group" >
+                {{input type="text" placeholder="Search for tags" class="form-control" value=newQuery action="search"}} <button {{action "search"}} type="button" class="btn btn-primary ">Search</button>
+              </div>
+            </div>
+          
+          </div>
+     
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-md-offset-4">
+            <ul class="pagination">
+              <li {{bind-attr class=prevPage.class}}>
+              {{#link-to "search" (query-params tags=tags page=prevPage.index)}}&laquo;{{/link-to}}
+              </li>
+              {{#each pageNum in paginations}} 
+              <li {{bind-attr class=pageNum.class}}>
+              {{#link-to "search" (query-params tags=tags page=pageNum.index)}}{{pageNum.index}}{{/link-to}}
+              </li>
+              {{/each}}
+              <li {{bind-attr class=nextPage.class}}>
+              {{#link-to "search" (query-params tags=tags page=nextPage.index)}}&raquo;{{/link-to}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="row">
           {{#each}}
-            {{id}} {{title}} <br>
+          <div class="col-md-2 combo-box">
+          <a {{bind-attr href=profileUrl}}>
+          <div class="photo-box" style="background-image: url('{{unbound srcUrlThumbnail}}');"></div>
+          <!-- <img {{bind-attr src=srcUrlThumbnail alt=title}}> -->
+          </a>
+          <div class="title-box">{{shortenTitle}}</div>
+          
+          </div>
           {{/each}}
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-md-offset-4">
+            <ul class="pagination">
+              <li {{bind-attr class=prevPage.class}}>
+              {{#link-to "search" (query-params tags=tags page=prevPage.index)}}&laquo;{{/link-to}}
+              </li>
+              {{#each pageNum in paginations}} 
+              <li {{bind-attr class=pageNum.class}}>
+              {{#link-to "search" (query-params tags=tags page=pageNum.index)}}{{pageNum.index}}{{/link-to}}
+              </li>
+              {{/each}}
+              <li {{bind-attr class=nextPage.class}}>
+              {{#link-to "search" (query-params tags=tags page=nextPage.index)}}&raquo;{{/link-to}}
+              </li>
+            </ul>
+          </div>
+        </div>
+    </div>
+        
+
+          
     </script>
     <!-- <input type="text" placeholder="Search for tags" value=""><button>Search</button> -->
   </body>

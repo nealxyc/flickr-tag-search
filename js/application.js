@@ -27,21 +27,30 @@ App.PhotoAdapter = DS.Adapter.extend({
 	},
 
 	findQuery: function(store, type, query){
-
 		var url = this.get("url");
+		// Transform "cat dog" to "cat,dog" for API request payload
+		var queries = query.tags.split(" ");
+	  	var Util = Ember.EnumerableUtils ;
+  		queries = Util.filter(queries, function(elem){
+  				return elem != ""; 
+  		});
+		// this.store.find('photo', {})
+		var tags = queries.join(",");
 
 	    return new Ember.RSVP.Promise(function(resolve, reject) {
-	      jQuery.ajax({
-	      	url: url,
-	      	dataType: "jsonp",
-	  	    jsonp: "jsoncallback",
-	  	    crossDomain: true,
-	  	    data: {
-	      		tags: query.tags, // expecting format tags=cat,dog
-		      	method: "flickr.photos.search",
-		      	api_key: App.get("apiKey"),
-		      	format: "json",
-		      	tag_mode: "all",
+	    	
+	    	jQuery.ajax({
+		      	url: url,
+		      	dataType: "jsonp",
+		  	    jsonp: "jsoncallback",
+		  	    crossDomain: true,
+		  	    data: {
+		      		tags: tags, // expecting format tags=cat,dog
+		      		page: query.page,
+			      	method: "flickr.photos.search",
+			      	api_key: App.get("apiKey"),
+			      	format: "json",
+			      	tag_mode: "all",
 		    },
 	      }).then(function(data) {
 	        Ember.run(null, resolve, data);
@@ -83,20 +92,21 @@ App.PhotoSerializer = DS.RESTSerializer.extend({
 
 // Controllers
 App.IndexController = Ember.Controller.extend({
-  actions:{
-  	search: function(query){
-  		if(query){
-  			var queries = query.split(" ");
-  			var Util = Ember.EnumerableUtils ;
-  			queries = Util.filter(queries, function(elem){
-  				return elem != ""; 
-  			});
-
-  		}else{
-  			
-  		}
-  	}
-  }
+	query: "",
+	actions:{
+	  	search: function(query){
+	  		var query = this.get("query");
+	  		if(query){
+	  			this.transitionToRoute("search", {
+	  				queryParams: {
+	  					tags: query,
+	  				}
+	  			});
+	  		}else{
+	  			
+	  		}
+	  	}
+	}
 });
 
 //Routes
@@ -109,56 +119,112 @@ App.SearchRoute = Ember.Route.extend({
 	model: function(){
 		return this.store.all("photo") ;
 	},
+	setupController: function(controller, model){
+		this._super(controller, model);
 
-	setupController: function (controller, model) {
-	    // Call _super for default behavior
-	    this._super(controller, model);
-	    // intialize newQuery to the current tags
-	    controller.set("newQuery", controller.get("tags"));
-	},
+		controller.set("newQuery", controller.get("tags"));
+		controller.set("newPage", controller.get("page"));
+	}
 });
 
 App.SearchController = Ember.ArrayController.extend({
-	queryParams: ['tags'],
-	tags: null,
+	queryParams: ["tags", "page"],
+	tags: "",
 	// photos: Ember.ArrayProxy.create(),
-	newQuery: null,
+	newQuery: "",
 	//page": 1, "pages": "52892", "perpage": 100, "total": "5289138" 
-	page: null,
-	pages: null,
-	total: null ,
-	actions: {
-		/**
-		Main entry to start a search with the given tags
-		*/
-		search: function(tags){
-			if(tags){
-	  			var queries = tags.split(" ");
-	  			var Util = Ember.EnumerableUtils ;
-	  			queries = Util.filter(queries, function(elem){
-	  				return elem != ""; 
-	  			});
+	page: 1,
+	newPage: 1,
+	pages: 0,
+	total: 0 ,
 
-  				// this.store.find('photo', {})
-  				tags = queries.join(",");
-  				var controller = this;
-  				// Clear store
-  				this.store.unloadAll('photo');
-  				this.store.find("photo", {tags: tags}).then(function(photos){
-  					// photos.forEach(function(item){
-  					// 	controller.push(item);
-  					// });
-  					//controller.transitionToRoute("search");
-  					var newMeta = controller.store.metadataFor("photo");
-  					console.log(newMeta);
-  					//controller.store.pushMany('photo', photos);
-  				});
-  				
-	  		}else{
-	  			
-	  		}
+	watchParams: function(){
+		Ember.run.once(this, 'reload');
+	}.observes("tags", "page"),
+	// Trigger a reload when params changes
+	reload: function(){
+		var tags = this.get("tags");
+		var page = this.get("page");
+		if(tags){
+			var controller = this;
+			// Clear store
+			this.store.unloadAll('photo');
+			this.store.find("photo", {tags: tags, page: page}).then(function(photos){
+				var newMeta = controller.store.metadataFor("photo");
+				console.log(newMeta);
+				controller.set("page", newMeta.page);
+				controller.set("pages", newMeta.pages);
+				controller.set("total", newMeta.total);
+			});
+		}else{
+			//
+			this.store.unloadAll('photo');
+		}
+	},
+	//returns an array of possible pages
+	paginations: function(){
+		var page = this.get("page");
+		var pages = this.get("pages");
+		var ret = []
+		var start = null, end = null;
+		if(page <= 5){
+			start = 1 ;
+			end = Math.min(pages, start + 10);
+		}else if(page >= pages - 5){
+			end = pages ;
+			start = Math.max(1, end - 10);
+		}
+
+		if(!start) start = page - 5;
+		if(!end) end = page + 5 ;
+
+		return this.getRange(start, end, page);
+
+	}.property("page", "pages"),
+
+	prevPage: function(){
+		var page = this.get("page");
+		return {
+			index: Math.max(1, page - 1),
+			class: page == 1 ? "disabled": "",
+		};
+
+	}.property("page"),
+
+	nextPage: function(){
+		var page = this.get("page");
+		var pages = this.get("pages") ;
+		return {
+			index: Math.min(pages, page + 1),
+			class: page == pages ? "disabled": "",
+		};
+
+	}.property("page"),
+
+	getRange: function(start, end, current){
+		var ret = [];
+		for(var i = start; i <= end; i ++){
+			var obj = {
+				index: i,
+				class: ""
+			};
+			
+			if(i == current){
+				obj.class = "active" ;
+			}
+			ret.push(obj);
+		}
+		return ret ;
+	},
+	actions: {
+		search: function(){
+			this.set("tags", this.get("newQuery"));
+			this.set("newPage", 1);
+			this.set("page", 1);
 		},
 	},
+
+
 });
 
 
@@ -177,20 +243,39 @@ App.Photo = DS.Model.extend({
 // 	or
 // https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{o-secret}_o.(jpg|gif|png)
 	srcUrl: function(){
-		var get = this.get ;
-		return "https://farm" + get("farm") + ".staticflickr.com/" + get("server") + "/" + get("id")+ "_" + get("secret") + "_z.jpg" ;
+		return "https://farm" + this.get("farm") + ".staticflickr.com/" + this.get("server") + "/" + this.get("id")+ "_" + this.get("secret") + "_z.jpg" ;
 	}.property("id", "secret", "server", "farm"),
 
 	srcUrlThumbnail: function(){
-		var get = this.get ;
-		return "https://farm" + get("farm") + ".staticflickr.com/" + get("server") + "/" + get("id")+ "_" + get("secret") + "_t.jpg" ;
+		return "https://farm" + this.get("farm") + ".staticflickr.com/" + this.get("server") + "/" + this.get("id")+ "_" + this.get("secret") + "_q.jpg" ;
 	}.property("id", "secret", "server", "farm"),
 
 //https://www.flickr.com/photos/{user-id}/{photo-id} - individual photo
 	profileUrl: function(){
-		var get = this.get ;
-		return "https://www.flickr.com/photos/" + get("owner") + "/" + get("id") + "/";
-	}.property("id", "owner")
+		return "https://www.flickr.com/photos/" + this.get("owner") + "/" + this.get("id") + "/";
+	}.property("id", "owner"),
+
+	shortenTitle: function(){
+		var title = this.get("title");
+		if(title){
+			title = title.replace("\n", "");
+			return this.cutoff(title, 45);
+		}else{
+			return "" ;
+		}
+	}.property("title"),
+
+	cutoff: function(str, count){
+		if(str && str.length > count){
+			var nextSpace = str.indexOf(" ", count - 15);
+			if(nextSpace > 1 && nextSpace < count){
+				return str.substring(0, nextSpace) + "...";
+			}else{
+				return str.substring(0, count) + "...";
+			}
+		}
+		return str;
+	},
 });
 
 App.Photos = DS.Model.extend({

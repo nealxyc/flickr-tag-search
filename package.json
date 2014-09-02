@@ -1,10 +1,11 @@
 {
-  "name": "emberjs-testproj",
+  "name": "flickr-search",
   "version": "0.0.0",
   "description": "",
   "main": "app.js",
   "dependencies": {
     "connect": "~3.1.1",
+    "express": "^4.8.7",
     "serve-static": "~1.5.3"
   },
   "devDependencies": {},
