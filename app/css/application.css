@@ -1,9 +1,15 @@
-.search-box-init{
-	
+.title-box-row{
+	height: 100px;
 }
-
+.search-box-row{
+	height: 60px;
+}
 .search-box{
 	padding: 25px 0 25px 0;
+}
+
+.search-button-home{
+	width: 200px;
 }
 
 .photo-box{

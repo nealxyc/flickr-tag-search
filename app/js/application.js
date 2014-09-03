@@ -137,7 +137,7 @@ App.SearchController = Ember.ArrayController.extend({
 	newPage: 1,
 	pages: 0,
 	total: 0 ,
-
+	showPagination: false,
 	watchParams: function(){
 		Ember.run.once(this, 'reload');
 	}.observes("tags", "page"),
@@ -148,6 +148,7 @@ App.SearchController = Ember.ArrayController.extend({
 		if(tags){
 			var controller = this;
 			// Clear store
+			this.set("showPagination", false);
 			this.store.unloadAll('photo');
 			this.store.find("photo", {tags: tags, page: page}).then(function(photos){
 				var newMeta = controller.store.metadataFor("photo");
@@ -155,9 +156,11 @@ App.SearchController = Ember.ArrayController.extend({
 				controller.set("page", newMeta.page);
 				controller.set("pages", newMeta.pages);
 				controller.set("total", newMeta.total);
+				controller.set("showPagination", newMeta.pages > 0);
 			});
 		}else{
 			//
+			this.set("showPagination", false);
 			this.store.unloadAll('photo');
 		}
 	},
