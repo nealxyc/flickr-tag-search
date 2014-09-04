@@ -214,7 +214,7 @@ App.SearchController = Ember.ArrayController.extend({
 			this.store.unloadAll('photo');
 			this.store.find("photo", payload).then(function(photos){
 				var newMeta = controller.store.metadataFor("photo");
-				console.log(newMeta);
+				// console.log(newMeta);
 				controller.set("page", newMeta.page);
 				controller.set("pages", newMeta.pages);
 				controller.set("total", newMeta.total);
