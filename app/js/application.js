@@ -4,10 +4,6 @@ window.App = Ember.Application.create({
 
 //App.Store
 //https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=c72d785e4696909f6a8a042a0d84b35b&tags=cat&format=json&nojsoncallback=1&api_sig=2a8499223de96343d4dbe8acd7b78730
-// App.ApplicationAdapter = DS.RESTAdapter.extend({
-//   host: "https://api.flickr.com", 
-//   namespace: "services/rest"
-// });
 App.PhotoAdapter = DS.Adapter.extend({
 	url: "https://api.flickr.com/services/rest",
 	find: function(store, type, id){
@@ -133,19 +129,39 @@ App.IndexController = Ember.Controller.extend({
 		var controller = this ;
 		this.store.find("user").then(function(users){
 			if(users && users.objectAt(0)){
-				controller.set("user", users.objectAt(0));
+				var user =  users.objectAt(0);
+				if(user && user.id){
+					controller.set("user", user);
+				}
+				
 			}
 		});
 	},
 });
 
 App.UserController = Ember.ObjectController.extend({
+	userId: function(){
+		var user = this.get("model");
+		if(user){
+			return user.id;
+		}
+		return null ;
+		
+	}.property("model"),
+
 	profile: function(){
-		return "https://www.flickr.com/people/" + this.get("model").id ;
+		var user = this.get("model");
+		if(user){
+			return "https://www.flickr.com/photos/" + this.get("model").id ;
+		}else{
+			return "https://www.flickr.com/images/buddyicon.gif" ;
+		}
+		
 	}.property("model"),
 	actions: {
 		login: function(){
-			if(!this.get("model")){
+			var user = this.get("model");
+			if(!user || !user.id){
 				window.location = "/oauth/flickr";
 			}
 			
@@ -153,9 +169,15 @@ App.UserController = Ember.ObjectController.extend({
 		goProfile:function(){
 			window.location = this.get("profile");
 		},
-
+		logout: function(){
+			var user = this.get("model");
+			if(user && user.id){
+				user.deleteRecord();
+				user.save();
+				this.set("model", null);
+			}
+		},
 	},
-
 });
 
 App.SearchController = Ember.ArrayController.extend({

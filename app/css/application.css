@@ -3,12 +3,25 @@
 }
 
 .login-box{
-	vertical-align: middle;
+	/*vertical-align: middle;*/
 	height:80px;
+	width: 60px;
+	text-align: center;
+}
+
+.buddyicon-box{
+	margin-top: 10px;
+	height:55px;
+	width:60px;
+	background-repeat: no-repeat;
+}
+.login-link{
+	font-size: 1.2rem;
+	color: #222;
+	font-family: 'proxima-nova','Helvetica Neue',Arial,Helvetica,sans-serif;
 }
 
 .login-button{
-
 	margin-top: 20px;
 }
 .search-box-row{

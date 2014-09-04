@@ -50,7 +50,7 @@ passport.use('flickr', new FlickrStrategy({
 ));
 
 passport.serializeUser(function(user, done) {
-    console.log("user=" + JSON.stringify(user)) ;
+    // console.log("user=" + JSON.stringify(user)) ;
     db.find({id: user.id}, function(err, users){
       
       if(users && users[0]){
@@ -67,7 +67,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  console.log("id=" + id) ;
+  // console.log("id=" + id) ;
   db.find({id:id}, function(err, users){
     var user = users[0]
     done(err, user);
@@ -78,19 +78,26 @@ passport.deserializeUser(function(id, done) {
 // Initial auth
 app.get('/oauth/flickr', passport.authenticate('flickr'));
 
-//Callback
+//Oauth callback
 app.get('/oauth/flickr/callback', passport.authenticate('flickr', { 
   	successRedirect: '/',
     failureRedirect: '/' 
 }));
 
-//Callback
+//Login user info
 app.get('/users', function(req, res){
     if(req.user){
       res.send(JSON.stringify({"users":[req.user]}));
     }else{
       res.send(JSON.stringify({"users":[]}));
     }
+});
+
+// For log out
+app.delete('/users/:id', function(req, res){
+    var id = req.params.id ;
+    req.logout();
+    res.send(JSON.stringify({}));
 });
 
 

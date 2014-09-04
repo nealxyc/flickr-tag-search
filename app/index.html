@@ -1,16 +1,24 @@
 <html>
   <head>
-    <link type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link type="text/css" href="css/application.css" rel="stylesheet" />
   </head>
   <body>
     <!-- login link template -->
     <script type="text/x-handlebars" data-template-name="user">
       <div class="col-md-2 col-md-offset-1 login-box">
-          {{#if model}}
-              <button {{action "goProfile"}} class="btn btn-default login-button">{{model.displayName}}</button>
+          {{#if userId}}
+              <div class="login-box">
+                <a {{bind-attr href=profile}}>
+                <div class="buddyicon-box" style="background-image: url('https://www.flickr.com/buddyicons/{{unbound userId}}.jpg ')"></div>
+                </a>
+                <div><a class="login-link" href="javascript:void(0);" {{action "logout"}}>Logout</a></div>
+              </div>
           {{else}}
-              <button {{action "login"}} class="btn btn-default login-button">Login to Flickr</button>
+              <div class="login-box">
+                <div class="buddyicon-box" style="background-image: url('https://www.flickr.com/images/buddyicon.gif')"></div>
+                <div><a class="login-link" href="/oauth/flickr" title="Login using you Flickr account">Login</a></div>
+              </div>
           {{/if}}
       </div>
     </script>
@@ -126,9 +134,9 @@
     </script>
     <!-- <input type="text" placeholder="Search for tags" value=""><button>Search</button> -->
   </body>
-  <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
-  <script type="text/javascript" src="bower_components/handlebars/handlebars.js"></script>
-  <script type="text/javascript" src="bower_components/ember/ember.js"></script>
-  <script type="text/javascript" src="bower_components/ember-data/ember-data.js"></script>
+  <script type="text/javascript" src="lib/jquery/dist/jquery.js"></script>
+  <script type="text/javascript" src="lib/handlebars/handlebars.js"></script>
+  <script type="text/javascript" src="lib/ember/ember.js"></script>
+  <script type="text/javascript" src="lib/ember-data/ember-data.js"></script>
   <script type="text/javascript" src="js/application.js"></script>
 </html>
