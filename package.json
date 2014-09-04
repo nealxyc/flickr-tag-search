@@ -17,6 +17,7 @@
   "devDependencies": {},
   "scripts": {
     "prestart": "bower install",
+    "start": "node server.js | tee -a server.log",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
