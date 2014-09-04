@@ -4,13 +4,25 @@
     <link type="text/css" href="css/application.css" rel="stylesheet" />
   </head>
   <body>
-    <script type="text/x-handlebars" data-template-name="index">
+    <!-- login link template -->
+    <script type="text/x-handlebars" data-template-name="user">
+      <div class="col-md-2 col-md-offset-1 login-box">
+          {{#if model}}
+              <button {{action "goProfile"}} class="btn btn-default login-button">{{model.displayName}}</button>
+          {{else}}
+              <button {{action "login"}} class="btn btn-default login-button">Login to Flickr</button>
+          {{/if}}
+      </div>
+    </script>
 
+    <!-- home page template -->
+    <script type="text/x-handlebars" data-template-name="index">
     	 <div class="container">
         <div class="row title-box-row">
           <div class="col-md-6 col-md-offset-3">
               <h1>Search for Tags on Flickr</h1>
           </div>
+          {{render "user" user}}
         </div>  
         <div class="row search-box-row">
            <div class="col-md-9 col-md-offset-3">
@@ -25,12 +37,14 @@
       </div>
     </script>
     <script type="text/x-handlebars" data-template-name="search">
+
     <div class="container">
        <!-- title --> 
        <div class="row title-box-row">
           <div class="col-md-6 col-md-offset-3">
               <h1>Search for Tags on Flickr</h1>
           </div>
+          {{render "user" user}}
         </div>
         <!--  search input -->
         <div class="row search-box-row">

@@ -1,6 +1,16 @@
 .title-box-row{
 	height: 100px;
 }
+
+.login-box{
+	vertical-align: middle;
+	height:80px;
+}
+
+.login-button{
+
+	margin-top: 20px;
+}
 .search-box-row{
 	height: 60px;
 }

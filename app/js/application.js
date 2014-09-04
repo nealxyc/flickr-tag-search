@@ -90,9 +90,30 @@ App.PhotoSerializer = DS.RESTSerializer.extend({
   },
 });
 
+//Routes
+App.Router.map(function(){
+	this.route("search", {path:"/photo"});
+});
+
+App.SearchRoute = Ember.Route.extend({
+	// renderTemplate: function() {
+ //    	this.render({ outlet: 'search' });
+ //  	},
+	model: function(){
+		return this.store.all("photo") ;
+	},
+	setupController: function(controller, model){
+		this._super(controller, model);
+
+		controller.set("newQuery", controller.get("tags"));
+		controller.set("newPage", controller.get("page"));
+	}
+});
+
 // Controllers
 App.IndexController = Ember.Controller.extend({
 	query: "",
+	user: null,
 	actions:{
 	  	search: function(query){
 	  		var query = this.get("query");
@@ -106,25 +127,35 @@ App.IndexController = Ember.Controller.extend({
 	  			
 	  		}
 	  	}
-	}
-});
-
-//Routes
-App.Router.map(function(){
-	this.route("index", {path:"/"});
-	this.route("search", {path:"/photo"});
-});
-
-App.SearchRoute = Ember.Route.extend({
-	model: function(){
-		return this.store.all("photo") ;
 	},
-	setupController: function(controller, model){
-		this._super(controller, model);
+	init: function(){
+		this._super();
+		var controller = this ;
+		this.store.find("user").then(function(users){
+			if(users && users.objectAt(0)){
+				controller.set("user", users.objectAt(0));
+			}
+		});
+	},
+});
 
-		controller.set("newQuery", controller.get("tags"));
-		controller.set("newPage", controller.get("page"));
-	}
+App.UserController = Ember.ObjectController.extend({
+	profile: function(){
+		return "https://www.flickr.com/people/" + this.get("model").id ;
+	}.property("model"),
+	actions: {
+		login: function(){
+			if(!this.get("model")){
+				window.location = "/oauth/flickr";
+			}
+			
+		},
+		goProfile:function(){
+			window.location = this.get("profile");
+		},
+
+	},
+
 });
 
 App.SearchController = Ember.ArrayController.extend({
@@ -138,6 +169,9 @@ App.SearchController = Ember.ArrayController.extend({
 	pages: 0,
 	total: 0 ,
 	showPagination: false,
+
+	user: null, //logined user
+
 	watchParams: function(){
 		Ember.run.once(this, 'reload');
 	}.observes("tags", "page"),
@@ -147,10 +181,16 @@ App.SearchController = Ember.ArrayController.extend({
 		var page = this.get("page");
 		if(tags){
 			var controller = this;
+			var user = this.get("user");
+			var payload = {tags: tags, page: page} ;
+
+			if(user && user.token){
+				payload.auth_token = token ;
+			}
 			// Clear store
 			this.set("showPagination", false);
 			this.store.unloadAll('photo');
-			this.store.find("photo", {tags: tags, page: page}).then(function(photos){
+			this.store.find("photo", payload).then(function(photos){
 				var newMeta = controller.store.metadataFor("photo");
 				console.log(newMeta);
 				controller.set("page", newMeta.page);
@@ -219,6 +259,16 @@ App.SearchController = Ember.ArrayController.extend({
 		}
 		return ret ;
 	},
+	init: function(){
+		this._super();
+		var controller = this ;
+		this.store.find("user").then(function(users){
+			if(users && users.objectAt(0)){
+				controller.set("user", users.objectAt(0));
+			}
+		});
+	},
+
 	actions: {
 		search: function(){
 			this.set("tags", this.get("newQuery"));
@@ -287,6 +337,12 @@ App.Photos = DS.Model.extend({
 	perpage: attr("number"),
 	total: attr("number"),
 	photo: DS.hasMany("photo"),
+});
+
+App.User = DS.Model.extend({
+	displayName: attr(),
+	fullName: attr(),
+	token: attr(),
 });
 
 
