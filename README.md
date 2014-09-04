@@ -13,7 +13,19 @@ cd flickr-tag-search
 ```shell
 npm install
 ```
-#### 3. Start the server
+
+#### 3. Change API key.
+Put in your Flickr API key and secret in `api_key.js` file.
+
+```js
+// Put in your api_key and secret here.
+module.exports = {
+	apiKey: "api-key",
+	secret: "secret"
+};
+```
+
+#### 4. Start the server
 
 ```shell
 npm start
