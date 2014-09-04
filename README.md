@@ -5,6 +5,7 @@
 
 ```shell
 git clone git@github.com:nealxyc/flickr-tag-search.git
+cd flickr-tag-search
 ```
 
 #### 2. Then install npm dependecies
@@ -12,7 +13,7 @@ git clone git@github.com:nealxyc/flickr-tag-search.git
 ```shell
 npm install
 ```
-#### 2. Then install npm dependecies
+#### 3. Start the server
 
 ```shell
 npm start
