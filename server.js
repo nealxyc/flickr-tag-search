@@ -8,18 +8,10 @@ var key = require("./api_key.js");
 // Init in-memory db
 var db = new (require('nedb'))();
 
-// Configurable port number passed in from shell arg
-var port = 8080;
-var host = "localhost" ;
-if(process.argv.length > 2){
-	var host_port = process.argv[2].split(":") ;
-  if(host_port.length > 1){
-    host = host_port[0];
-    port = host_port[1];
-  }else{
-    port = host_port[0];
-  }
-}
+// Configurable port number and localhost name
+var port = process.env.PORT || 8000;
+var host = process.env.HOSTNAME || "localhost";
+
 
 app.use(session({secret: 'S3SS1ON-S3CR3T'})); //session secret
 app.use(passport.initialize());

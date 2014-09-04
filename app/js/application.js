@@ -206,7 +206,7 @@ App.SearchController = Ember.ArrayController.extend({
 			var user = this.get("user");
 			var payload = {tags: tags, page: page} ;
 
-			if(user && user.token){
+			if(user && user.id && user.token){
 				payload.auth_token = token ;
 			}
 			// Clear store
