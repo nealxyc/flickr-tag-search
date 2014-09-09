@@ -1,5 +1,8 @@
 # Flickr Tag Search
 
+### Online Demo
+This app is running at http://flickr-tag-search.herokuapp.com/
+
 ### How to run
 #### 1. First clone the repository to you local folder
 
